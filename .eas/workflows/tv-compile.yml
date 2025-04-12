@@ -1,12 +1,11 @@
 name: TV compile test
 
 on:
-  push:
-    branches: ['main']
-
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: '0 22 * * SUN' # 22:00 UTC every Sunday
 
 jobs:
   check_paths:
@@ -22,8 +21,15 @@ jobs:
         env:
           GIT_AUTHOR_NAME: "Douglas Lowder"
           GIT_AUTHOR_EMAIL: "douglowder@mac.com"
-        run: |
-          node ./packages/expo-updates/bin/check-for-changed-paths/index.js ${{ github.event_name }} main 'packages/expo-updates/**' '.eas/workflows/**'
+        run: >
+          node ./packages/expo-updates/bin/check-for-changed-paths/index.js
+          ${{ github.event_name }}
+          main
+          .eas/workflows/tv-compile.yml
+          'packages/expo-modules-core/ios/Core/Views/SwiftUI/**'
+          'packages/expo-ui/**'
+          packages/expo-updates/e2e/setup/create-eas-project-tv.ts
+          packages/expo-updates/e2e/setup/project.ts
       - name: Print result
         run: |
           echo ${{ steps.changed_paths.outputs.result }}
